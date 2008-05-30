@@ -1,7 +1,8 @@
 This is the default libraries from arudino + modifications, as well as additional
 libraries I've found and modified / wrote. This is being setup as a additional
 git repo, because the libraries have to live in a fixed directory, and I want
-stuff version controlled, so the whole lot has to be imported.
+stuff version controlled, so the whole lot has to be imported. A good reference
+for creating libraries is here: http://www.arduino.cc/en/Hacking/LibraryTutorial
 
 This repo should live in hardware/libraries in your arduino dir
 (e.g /Applications/arduino-0011/hardware/libraries )
