@@ -310,6 +310,25 @@ void twi_releaseBus(void)
   twi_state = TWI_READY;
 }
 
+/* 
+ * Function twi_isFound
+ * Desc     method to see if a device was found after writing to an adddress
+ * Input    none
+ * Output   true(1) if a device was found, false(0) if not
+ * From: http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1192228140/1#1
+ */
+int foundDevice = 0;
+int twi_isFound(void)
+{
+      if (foundDevice)
+      {
+              foundDevice = 0;
+              return 1;
+      }
+
+      return 0;
+}
+
 SIGNAL(SIG_2WIRE_SERIAL)
 {
   switch(TW_STATUS){
@@ -323,6 +342,11 @@ SIGNAL(SIG_2WIRE_SERIAL)
 
     // Master Transmitter
     case TW_MT_SLA_ACK:  // slave receiver acked address
+	// set found device to true if a device acknowledged the message
+	// from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1192228140/1#1
+    {
+    	foundDevice = 1;
+    }
     case TW_MT_DATA_ACK: // slave receiver acked data
       // if there is data to send, send it, otherwise stop 
       if(twi_masterBufferIndex < twi_masterBufferLength){

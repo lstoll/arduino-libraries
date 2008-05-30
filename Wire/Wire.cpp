@@ -256,6 +256,16 @@ void TwoWire::onRequest( void (*function)(void) )
   user_onRequest = function;
 }
 
+// used to check an address - from/see from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1192228140/2#2
+// modded by lstoll@lstoll.net (wasn't returning result)
+bool TwoWire::checkAddress(uint8_t twiAddress)
+{
+	uint8_t *txBuffer;
+	twi_writeTo(twiAddress, txBuffer, 0, 1);
+	return twi_isFound();
+}
+
+
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
 TwoWire Wire = TwoWire();

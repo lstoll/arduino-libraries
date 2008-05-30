@@ -59,9 +59,13 @@ class TwoWire
     uint8_t receive(void);
     void onReceive( void (*)(int) );
     void onRequest( void (*)(void) );
+	// function to check address - from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1192228140/2#2
+	bool checkAddress(uint8_t);
 };
 
 extern TwoWire Wire;
+
+#define WIRE_LIB_SCAN_MOD // notes the check address function has been added. ref http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1192228140/3#3
 
 #endif
 
