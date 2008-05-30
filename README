@@ -1,0 +1,14 @@
+This is the default libraries from arudino + modifications, as well as additional
+libraries I've found and modified / wrote. This is being setup as a additional
+git repo, because the libraries have to live in a fixed directory, and I want
+stuff version controlled, so the whole lot has to be imported.
+
+This repo should live in hardware/libraries in your arduino dir
+(e.g /Applications/arduino-0011/hardware/libraries )
+
+Currently based on: ver 0011 (will merge in new versions changes and increment this
+								number when released.)
+								
+FILES/MODIFICATIONS:
+(nb: default stuff that hasn't changed not listed.)
+
