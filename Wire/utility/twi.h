@@ -52,8 +52,6 @@
   void twi_reply(uint8_t);
   void twi_stop(void);
   void twi_releaseBus(void);
-  // dec for is found method from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1192228140/1#1
-  int twi_isFound(void);
 
 #endif
 

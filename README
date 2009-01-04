@@ -1,15 +1,29 @@
-This is the default libraries from arudino + modifications, as well as additional
-libraries I've found and modified / wrote. This is being setup as a additional
-git repo, because the libraries have to live in a fixed directory, and I want
-stuff version controlled, so the whole lot has to be imported. A good reference
-for creating libraries is here: http://www.arduino.cc/en/Hacking/LibraryTutorial
+Arduino Libraries  v0012.1 (1/04/09)
+
+WHAT : 
+This is the default libraries from arduino + modifications and aditional community
+libraries. Community libraries will be listed below with links, as well as any notes
+of changes to the official arduino libraries. 
 
 This repo should live in hardware/libraries in your arduino dir
-(e.g /Applications/arduino-0011/hardware/libraries )
+(e.g /Applications/arduino-0012/hardware/libraries )
 
-Currently based on: ver 0011 (will merge in new versions changes and increment this
+Currently based on: ver 0012 (will merge in new versions changes and increment this
 								number when released.)
+
+WHY :
+This was setup to provide a git repository of the arduino libraries, as well as a good
+place for modified/additional code to be stored with revision control. 
+
+LINKS : 
+Arduino Official site      - http://arduino.cc/
+Official library reference - http://arduino.cc/en/Reference/Libraries
+Making your own library    - http://www.arduino.cc/en/Hacking/LibraryTutorial
 								
 FILES/MODIFICATIONS:
 (nb: default stuff that hasn't changed not listed.)
 
+
+Changelog:
+
+1/04/09 - Updated libraries to official Arduino 0012. -transitdk

@@ -22,7 +22,6 @@
 #include <inttypes.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/signal.h>
 #include <compat/twi.h>
 
 #ifndef cbi
@@ -51,6 +50,8 @@ static volatile uint8_t twi_txBufferLength;
 
 static uint8_t* twi_rxBuffer;
 static volatile uint8_t twi_rxBufferIndex;
+
+static volatile uint8_t twi_error;
 
 /* 
  * Function twi_init
@@ -113,7 +114,7 @@ void twi_setAddress(uint8_t address)
  * Input    address: 7bit i2c device address
  *          data: pointer to byte array
  *          length: number of bytes to read into array
- * Output   byte: 0 ok, 1 length too long for buffer
+ * Output   number of bytes read
  */
 uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length)
 {
@@ -121,7 +122,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length)
 
   // ensure data will fit into buffer
   if(TWI_BUFFER_LENGTH < length){
-    return 1;
+    return 0;
   }
 
   // wait until twi is ready, become master receiver
@@ -129,6 +130,8 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length)
     continue;
   }
   twi_state = TWI_MRX;
+  // reset error state (0xFF.. no error occured)
+  twi_error = 0xFF;
 
   // initialize buffer iteration vars
   twi_masterBufferIndex = 0;
@@ -146,12 +149,15 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length)
 	  continue;
 	}
 
+  if (twi_masterBufferIndex < length)
+	length = twi_masterBufferIndex;
+
   // copy twi buffer to data
   for(i = 0; i < length; ++i){
     data[i] = twi_masterBuffer[i];
   }
 	
-	return 0;
+	return length;
 }
 
 /* 
@@ -162,7 +168,11 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length)
  *          data: pointer to byte array
  *          length: number of bytes in array
  *          wait: boolean indicating to wait for write or not
- * Output   byte: 0 ok, 1 length too long for buffer
+ * Output   0 .. success
+ *          1 .. length to long for buffer
+ *          2 .. address send, NACK received
+ *          3 .. data send, NACK received
+ *          4 .. other twi error (lost bus arbitration, bus error, ..)
  */
 uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait)
 {
@@ -178,6 +188,8 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
     continue;
   }
   twi_state = TWI_MTX;
+  // reset error state (0xFF.. no error occured)
+  twi_error = 0xFF;
 
   // initialize buffer iteration vars
   twi_masterBufferIndex = 0;
@@ -200,7 +212,14 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
 	  continue;
 	}
 	
-	return 0;
+	if (twi_error == 0xFF)
+		return 0;	// success
+	else if (twi_error == TW_MT_SLA_NACK)
+		return 2;	// error: address send, nack received
+	else if (twi_error == TW_MT_DATA_NACK)
+		return 3;	// error: data send, nack received
+	else
+		return 4;	// other twi error
 }
 
 /* 
@@ -310,25 +329,6 @@ void twi_releaseBus(void)
   twi_state = TWI_READY;
 }
 
-/* 
- * Function twi_isFound
- * Desc     method to see if a device was found after writing to an adddress
- * Input    none
- * Output   true(1) if a device was found, false(0) if not
- * From: http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1192228140/1#1
- */
-int foundDevice = 0;
-int twi_isFound(void)
-{
-      if (foundDevice)
-      {
-              foundDevice = 0;
-              return 1;
-      }
-
-      return 0;
-}
-
 SIGNAL(SIG_2WIRE_SERIAL)
 {
   switch(TW_STATUS){
@@ -342,11 +342,6 @@ SIGNAL(SIG_2WIRE_SERIAL)
 
     // Master Transmitter
     case TW_MT_SLA_ACK:  // slave receiver acked address
-	// set found device to true if a device acknowledged the message
-	// from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1192228140/1#1
-    {
-    	foundDevice = 1;
-    }
     case TW_MT_DATA_ACK: // slave receiver acked data
       // if there is data to send, send it, otherwise stop 
       if(twi_masterBufferIndex < twi_masterBufferLength){
@@ -358,10 +353,15 @@ SIGNAL(SIG_2WIRE_SERIAL)
       }
       break;
     case TW_MT_SLA_NACK:  // address sent, nack received
+      twi_error = TW_MT_SLA_NACK;
+      twi_stop();
+      break;
     case TW_MT_DATA_NACK: // data sent, nack received
+      twi_error = TW_MT_DATA_NACK;
       twi_stop();
       break;
     case TW_MT_ARB_LOST: // lost bus arbitration
+      twi_error = TW_MT_ARB_LOST;
       twi_releaseBus();
       break;
 
@@ -466,6 +466,7 @@ SIGNAL(SIG_2WIRE_SERIAL)
     case TW_NO_INFO:   // no state information
       break;
     case TW_BUS_ERROR: // bus error, illegal stop/start
+      twi_error = TW_BUS_ERROR;
       twi_stop();
       break;
   }

@@ -77,22 +77,24 @@ void TwoWire::begin(int address)
   begin((uint8_t)address);
 }
 
-void TwoWire::requestFrom(uint8_t address, uint8_t quantity)
+uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity)
 {
   // clamp to buffer length
   if(quantity > BUFFER_LENGTH){
     quantity = BUFFER_LENGTH;
   }
   // perform blocking read into buffer
-  twi_readFrom(address, rxBuffer, quantity);
+  uint8_t read = twi_readFrom(address, rxBuffer, quantity);
   // set rx buffer iterator vars
   rxBufferIndex = 0;
-  rxBufferLength = quantity;
+  rxBufferLength = read;
+
+  return read;
 }
 
-void TwoWire::requestFrom(int address, int quantity)
+uint8_t TwoWire::requestFrom(int address, int quantity)
 {
-  requestFrom((uint8_t)address, (uint8_t)quantity);
+  return requestFrom((uint8_t)address, (uint8_t)quantity);
 }
 
 void TwoWire::beginTransmission(uint8_t address)
@@ -111,15 +113,16 @@ void TwoWire::beginTransmission(int address)
   beginTransmission((uint8_t)address);
 }
 
-void TwoWire::endTransmission(void)
+uint8_t TwoWire::endTransmission(void)
 {
   // transmit buffer (blocking)
-  twi_writeTo(txAddress, txBuffer, txBufferLength, 1);
+  int8_t ret = twi_writeTo(txAddress, txBuffer, txBufferLength, 1);
   // reset tx buffer iterator vars
   txBufferIndex = 0;
   txBufferLength = 0;
   // indicate that we are done transmitting
   transmitting = 0;
+  return ret;
 }
 
 // must be called in:
@@ -255,16 +258,6 @@ void TwoWire::onRequest( void (*function)(void) )
 {
   user_onRequest = function;
 }
-
-// used to check an address - from/see from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1192228140/2#2
-// modded by lstoll@lstoll.net (wasn't returning result)
-bool TwoWire::checkAddress(uint8_t twiAddress)
-{
-	uint8_t *txBuffer;
-	twi_writeTo(twiAddress, txBuffer, 0, 1);
-	return twi_isFound();
-}
-
 
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
