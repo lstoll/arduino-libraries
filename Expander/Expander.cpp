@@ -35,8 +35,6 @@
 Expander::Expander(uint8_t address)
 {
   this->address = address;
-  
-  this->write(0x00);
 }
 
 /******************************************************************************
