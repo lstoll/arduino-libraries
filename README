@@ -1,4 +1,4 @@
-Arduino Libraries  v0012.1 (1/04/09)
+Arduino Libraries  v0015.0 (3/22/09)
 
 WHAT : 
 This is the default libraries from arduino + modifications and aditional community
@@ -6,9 +6,10 @@ libraries. Community libraries will be listed below with links, as well as any n
 of changes to the official arduino libraries. 
 
 This repo should live in hardware/libraries in your arduino dir
-(e.g /Applications/arduino-0012/hardware/libraries )
+(e.g /Applications/arduino-0015/hardware/libraries )
 
-Currently based on: ver 0012 (will merge in new versions changes and increment this
+Currently based on: ver 0015 (will merge in new versions changes and 
+increment this
 								number when released.)
 
 WHY :
@@ -26,4 +27,8 @@ FILES/MODIFICATIONS:
 
 Changelog:
 
+3/22/09 - Updated libraries to official Arduino 0015. -alfanick
+          Added EEEPROM library (external I2C EEPROM),
+                Expander library (PCF8574 port expander),
+                RTC library (DS1307 RTC).
 1/04/09 - Updated libraries to official Arduino 0012. -transitdk
