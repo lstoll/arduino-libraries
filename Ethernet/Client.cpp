@@ -8,6 +8,8 @@ extern "C" {
 #include "Client.h"
 #include "Server.h"
 
+uint16_t Client::_srcport = 0;
+
 Client::Client(uint8_t sock) {
   _sock = sock;
 }
@@ -29,8 +31,9 @@ uint8_t Client::connect() {
   if (_sock == 255)
     return 0;
     
-  // XXX: what port should we connect from?
-  socket(_sock, Sn_MR_TCP, _port, 0);
+  _srcport++;
+    
+  socket(_sock, Sn_MR_TCP, 1024 + _srcport, 0);
   
   if (!::connect(_sock, _ip, _port))
     return 0;
